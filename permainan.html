@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pemainan Sejarah Pemberontakan</title>
+    <style>
+        .target {
+            position: absolute;
+            cursor: pointer;
+        }
+        .target img {
+            width: 100px;
+            height: 100px;
+            border: none;
+        }
+        #game-area {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            background-color: #f0f0f0;
+            border: 1px solid #000;
+            overflow: hidden;
+        }
+        #story {
+            margin: 20px;
+            font-size: 16px;
+            color: #333;
+            font-family: 'Arial', sans-serif;
+            background-color: #e0e0e0;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        #feedback {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #555;
+        }
+        #coins {
+            font-size: 20px;
+            margin-top: 10px;
+        }
+        #start-shooting-game, #end-shooting-game {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        #start-shooting-game:hover, #end-shooting-game:hover {
+            background-color: #45a049;
+        }
+        #back-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        #back-button:hover {
+            background-color: #e53935;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-area"></div>
+    <div id="story"></div>
+    <div id="feedback"></div>
+    <div id="coins">Koin: 0</div>
+    <button id="start-shooting-game">Mulai Permainan</button>
+    <button id="end-shooting-game">Akhiri Permainan</button>
+    <button id="back-button" onclick="window.location.href='index.html'">Kembali ke Cerita</button>
+
+    <script>
+        const targets = [
+            { image: 'image/musso.jpg', type: 'penghianat' },
+            { image: 'image/aidit.jpg', type: 'penghianat' },
+            { image: 'image/teungku.jpg', type: 'penghianat' },
+            { image: 'image/soekarno.jpg', type: 'pahlawan' },
+            { image: 'image/haryono.jpg', type: 'pahlawan' },
+        ];
+
+        const gameArea = document.getElementById("game-area");
+        const story = document.getElementById("story");
+        const feedback = document.getElementById("feedback");
+        const coinsElement = document.getElementById("coins");
+        const startShootingGameBtn = document.getElementById("start-shooting-game");
+        const endShootingGameBtn = document.getElementById("end-shooting-game");
+
+        let coins = 0;
+        let shootingScore = 0;
+        let shootingInterval;
+
+        function displayStory(message) {
+            story.textContent = message;
+        }
+
+        function startShootingGame() {
+            shootingScore = 0;
+            coinsElement.textContent = `Koin: ${coins}`;
+            feedback.textContent = "";
+            startShootingGameBtn.style.display = "none";
+            displayStory("Anda berada di masa sejarah pemberontakan. Pilih target yang benar, tetapi hati-hati! Jangan tembak pahlawan!");
+            shootingInterval = setInterval(spawnTarget, 1000);
+        }
+
+        function endShootingGame() {
+            clearInterval(shootingInterval);
+            startShootingGameBtn.style.display = "block";
+            coins += shootingScore;
+            coinsElement.textContent = `Koin: ${coins}`;
+            feedback.textContent = `Permainan berakhir. Skor Anda: ${shootingScore}`;
+            displayStory("Permainan selesai! Terima kasih telah bermain.");
+        }
+
+        function spawnTarget() {
+            const target = document.createElement("div");
+            target.classList.add("target");
+
+            const randomTarget = targets[Math.floor(Math.random() * targets.length)];
+
+            const img = document.createElement("img");
+            img.src = randomTarget.image;
+            img.alt = randomTarget.type;
+
+            const x = Math.random() * (gameArea.offsetWidth - 50);
+            const y = Math.random() * (gameArea.offsetHeight - 50);
+
+            target.style.left = `${x}px`;
+            target.style.top = `${y}px`;
+
+            target.appendChild(img);
+            target.dataset.type = randomTarget.type;
+
+            target.addEventListener("click", () => {
+                if (target.dataset.type === "penghianat") {
+                    shootingScore++;
+                    feedback.textContent = `Skor: ${shootingScore}`;
+                    displayStory("Anda menembak penghianat! Skor bertambah.");
+                } else {
+                    feedback.textContent = "Anda menembak pahlawan! Permainan berakhir.";
+                    feedback.style.color = "red";
+                    displayStory("Anda menembak pahlawan! Permainan berakhir.");
+                    endShootingGame();
+                }
+
+                gameArea.removeChild(target);
+            });
+
+            gameArea.appendChild(target);
+
+            setTimeout(() => {
+                if (target.parentElement) {
+                    gameArea.removeChild(target);
+                }
+            }, 2000);
+        }
+
+        startShootingGameBtn.addEventListener("click", startShootingGame);
+        endShootingGameBtn.addEventListener("click", endShootingGame);
+    </script>
+</body>
+</html>

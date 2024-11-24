@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pemainan Tebak Gambar - Tokoh Sejarah Indonesia</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+        }
+        #game-container {
+            margin: 20px auto;
+            width: 80%;
+            max-width: 600px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h1 {
+            color: #4CAF50;
+        }
+        .image-container {
+            width: 100%;
+            height: 300px;
+            background-color: #e0e0e0;
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .image-container img {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+        }
+        .answer-input {
+            margin-top: 20px;
+            padding: 10px;
+            font-size: 18px;
+            width: 80%;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        .btn {
+            padding: 12px 25px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .btn:hover {
+            background-color: #45a049;
+        }
+        .feedback {
+            margin-top: 20px;
+            font-size: 20px;
+            color: #f44336;
+        }
+        .status {
+            font-size: 18px;
+            margin-top: 20px;
+        }
+        .status span {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <h1>Tebak Gambar Tokoh Sejarah</h1>
+        
+        <!-- Gambar Tokoh -->
+        <div class="image-container">
+            <img id="game-image" src="" alt="Tebak gambar tokoh">
+        </div>
+
+        <!-- Input jawaban -->
+        <input id="answer" type="text" class="answer-input" placeholder="Masukkan nama tokoh" />
+
+        <!-- Tombol Kirim Jawaban -->
+        <button id="submit-answer" class="btn">Kirim Jawaban</button>
+
+        <!-- Feedback -->
+        <div id="feedback" class="feedback"></div>
+
+        <!-- Tombol untuk melanjutkan ke pertanyaan berikutnya -->
+        <button id="next-question" class="btn" style="display:none;">Pertanyaan Berikutnya</button>
+
+        <!-- Tombol Kembali ke Halaman Utama -->
+        <a href="index.html">
+            <button class="btn">Kembali ke Halaman Utama</button>
+        </a>
+
+        <!-- Status (Jumlah Jawaban Benar dan Total Koin) -->
+        <div class="status">
+            <p>Jumlah Jawaban Benar: <span id="correct-count">0</span></p>
+            <p>Total Koin: <span id="coin-count">0</span></p>
+        </div>
+    </div>
+
+    <script>
+        const gameImages = [
+            { 
+                image: 'image/musso.jpg', 
+                names: ['Musso', 'Muso', 'muso', 'musso'] 
+            },
+            { 
+                image: 'image/aidit.jpg', 
+                names: ['D. N. Aidit', 'D.N. Aidit', 'dn aidit', 'aidit'] 
+            },
+            { 
+                image: 'image/soekarno.jpg', 
+                names: ['Soekarno', 'soekarno', 'Sukarno', 'soekarno'] 
+            },
+            { 
+                image: 'image/haryono.jpg', 
+                names: ['Haryono', 'haryono', 'Haryono', 'Haryo'] 
+            },
+            { 
+                image: 'image/teungku.jpg', 
+                names: ['Teungku Muhammad Hasan', 'Teungku Hasan', 'Hasan', 'Teungku'] 
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let correctAnswers = 0;
+        let totalCoins = 0;
+
+        const gameImage = document.getElementById('game-image');
+        const answerInput = document.getElementById('answer');
+        const submitAnswerBtn = document.getElementById('submit-answer');
+        const feedbackDiv = document.getElementById('feedback');
+        const nextQuestionBtn = document.getElementById('next-question');
+        const correctCountDisplay = document.getElementById('correct-count');
+        const coinCountDisplay = document.getElementById('coin-count');
+
+        function loadNewQuestion() {
+            if (currentQuestionIndex >= gameImages.length) {
+                feedbackDiv.textContent = "Permainan Selesai! Total Koin Anda: " + totalCoins;
+                submitAnswerBtn.disabled = true;
+                return;
+            }
+
+            const currentQuestion = gameImages[currentQuestionIndex];
+            gameImage.src = currentQuestion.image;
+            feedbackDiv.textContent = '';
+            answerInput.value = '';
+            nextQuestionBtn.style.display = 'none';
+        }
+
+        function checkAnswer() {
+            const userAnswer = answerInput.value.trim().toLowerCase();
+            const correctAnswersList = gameImages[currentQuestionIndex].names.map(name => name.toLowerCase());
+
+            if (correctAnswersList.includes(userAnswer)) {
+                feedbackDiv.textContent = "Jawaban Benar!";
+                feedbackDiv.style.color = "#4CAF50";
+                correctAnswers++;
+                totalCoins += 10;  // Add 10 coins for each correct answer
+            } else {
+                feedbackDiv.textContent = "Jawaban Salah! Coba Lagi.";
+                feedbackDiv.style.color = "#f44336";
+            }
+
+            // Update the correct answer count and coin count
+            correctCountDisplay.textContent = correctAnswers;
+            coinCountDisplay.textContent = totalCoins;
+
+            submitAnswerBtn.disabled = true;
+            nextQuestionBtn.style.display = 'block';
+        }
+
+        submitAnswerBtn.addEventListener('click', checkAnswer);
+
+        nextQuestionBtn.addEventListener('click', () => {
+            currentQuestionIndex++;
+            loadNewQuestion();
+            submitAnswerBtn.disabled = false;
+        });
+
+        // Load the first question on page load
+        loadNewQuestion();
+    </script>
+</body>
+</html>
